@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Creator Dreams — The Manifesto</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,450;0,9..144,600;1,9..144,400;1,9..144,500&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#040404;
+    --bg-raised:#0b0b0c;
+    --text:#efeeec;
+    --text-dim:#8f8e93;
+    --text-faint:#525156;
+    --line:#1d1d20;
+    --line-bright:#3a3a40;
+    --glow:#ffffff;
+  }
+
+  *{ margin:0; padding:0; box-sizing:border-box; }
+
+  html{ scroll-behavior:smooth; }
+
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Inter', sans-serif;
+    font-weight:300;
+    overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  ::selection{ background:#fff; color:#000; }
+
+  /* ---------- grain texture ---------- */
+  .grain{
+    position:fixed; inset:0; z-index:200; pointer-events:none;
+    opacity:0.035; mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* ---------- progress rail (desktop) ---------- */
+  .rail{
+    position:fixed; left:40px; top:0; bottom:0; width:1px; z-index:100;
+    display:none;
+  }
+  .rail-track{ position:absolute; inset:0; background:var(--line); }
+  .rail-fill{
+    position:absolute; top:0; left:0; width:100%; height:0%;
+    background:linear-gradient(180deg, rgba(255,255,255,0.05), #ffffff);
+    box-shadow:0 0 12px 1px rgba(255,255,255,0.5);
+    transition:height 0.05s linear;
+  }
+  .rail-dot{
+    position:absolute; left:50%; top:0; width:7px; height:7px; border-radius:50%;
+    transform:translate(-50%,-50%);
+    background:#fff;
+    box-shadow:0 0 6px 1px rgba(255,255,255,0.4);
+    transition:top 0.05s linear, box-shadow 0.2s ease;
+  }
+
+  /* ---------- progress bar (mobile) ---------- */
+  .progress-top{
+    position:fixed; top:0; left:0; right:0; height:2px; z-index:100;
+    background:var(--line);
+  }
+  .progress-top-fill{
+    height:100%; width:0%; background:#fff;
+    box-shadow:0 0 8px 1px rgba(255,255,255,0.6);
+    transition:width 0.05s linear;
+  }
+
+  @media (min-width:900px){
+    .rail{ display:block; }
+    .progress-top{ display:none; }
+  }
+
+  /* ---------- hero ---------- */
+  .hero{
+    min-height:100svh;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    text-align:center; position:relative; padding:32px;
+    background:
+      radial-gradient(ellipse 60% 45% at 50% 42%, rgba(255,255,255,0.10), transparent 70%),
+      var(--bg);
+  }
+  .hero::before{
+    content:''; position:absolute; inset:0;
+    background:radial-gradient(circle at 50% 100%, rgba(255,255,255,0.05), transparent 55%);
+    pointer-events:none;
+  }
+  .eyebrow{
+    font-family:'JetBrains Mono', monospace;
+    font-size:11px; letter-spacing:0.32em; text-transform:uppercase;
+    color:var(--text-faint); margin-bottom:26px;
+  }
+  .hero h1{
+    font-family:'Fraunces', serif;
+    font-weight:300;
+    font-style:italic;
+    font-size:clamp(2.6rem, 8vw, 6rem);
+    letter-spacing:-0.01em;
+    line-height:1.02;
+    color:#fff;
+    text-shadow:0 0 60px rgba(255,255,255,0.18);
+    margin-bottom:34px;
+  }
+  .hero h1 .bracket{ color:var(--text-faint); font-style:normal; font-family:'JetBrains Mono',monospace; font-size:0.32em; vertical-align:middle; display:block; margin-top:14px; letter-spacing:0.1em;}
+  .hero-line{
+    font-family:'Fraunces', serif; font-style:italic; font-weight:400;
+    font-size:clamp(1.15rem, 2.4vw, 1.5rem);
+    color:var(--text-dim);
+    max-width:36ch;
+  }
+  .scroll-cue{
+    position:absolute; bottom:44px; left:50%; transform:translateX(-50%);
+    font-family:'JetBrains Mono', monospace; font-size:10px; letter-spacing:0.28em;
+    color:var(--text-faint); display:flex; flex-direction:column; align-items:center; gap:10px;
+  }
+  .scroll-cue .stem{ width:1px; height:34px; background:linear-gradient(180deg, var(--text-faint), transparent); animation:stem 2.2s ease-in-out infinite; }
+  @keyframes stem{ 0%,100%{ opacity:0.3; } 50%{ opacity:1; } }
+
+  /* ---------- chapters ---------- */
+  main{ position:relative; z-index:1; }
+
+  .chapter{
+    position:relative;
+    padding:min(18vh,150px) 32px min(14vh,110px);
+    max-width:760px;
+    margin:0 auto;
+    border-top:1px solid var(--line);
+  }
+  .chapter:first-of-type{ border-top:none; }
+
+  .num-watermark{
+    position:absolute;
+    top:min(10vh,80px);
+    right:clamp(6px, 4vw, 40px);
+    font-family:'Fraunces', serif;
+    font-weight:300;
+    font-size:clamp(4rem, 14vw, 11rem);
+    color:transparent;
+    -webkit-text-stroke:1px var(--line-bright);
+    line-height:1;
+    user-select:none;
+    z-index:0;
+    transition:transform 1.4s cubic-bezier(.16,.8,.24,1), -webkit-text-stroke-color 1.4s ease;
+  }
+  .chapter.is-visible .num-watermark{ -webkit-text-stroke-color:#57565c; }
+
+  .chapter-inner{ position:relative; z-index:1; }
+
+  .chapter .eyebrow{ margin-bottom:18px; }
+
+  .chapter h2{
+    font-family:'Fraunces', serif;
+    font-weight:450;
+    font-size:clamp(1.7rem, 4.4vw, 2.7rem);
+    letter-spacing:-0.01em;
+    color:#fff;
+    margin-bottom:30px;
+    line-height:1.12;
+  }
+
+  .body p{
+    font-size:clamp(0.98rem, 1.6vw, 1.09rem);
+    line-height:1.85;
+    color:var(--text-dim);
+    margin-bottom:22px;
+    max-width:62ch;
+  }
+  .body p:last-child{ margin-bottom:0; }
+  .body strong{
+    color:#fff; font-weight:500;
+  }
+  .body em{
+    color:#fff; font-style:italic; font-family:'Fraunces', serif;
+  }
+
+  .pull{
+    font-family:'Fraunces', serif; font-style:italic; font-weight:400;
+    font-size:clamp(1.3rem, 3vw, 1.7rem);
+    color:#fff;
+    line-height:1.4;
+    max-width:20ch;
+    margin:36px 0;
+    text-shadow:0 0 40px rgba(255,255,255,0.12);
+  }
+
+  /* ---------- reveal animation ---------- */
+  .reveal{
+    opacity:0;
+    transform:translateY(28px);
+    transition:opacity 1s cubic-bezier(.16,.8,.24,1), transform 1s cubic-bezier(.16,.8,.24,1);
+    transition-delay:var(--d, 0s);
+  }
+  .is-visible .reveal{ opacity:1; transform:translateY(0); }
+
+  h2.reveal{
+    filter:drop-shadow(0 0 0px rgba(255,255,255,0));
+    transition:opacity 1s cubic-bezier(.16,.8,.24,1), transform 1s cubic-bezier(.16,.8,.24,1), filter 1.4s ease;
+  }
+  .is-visible h2.reveal{ filter:drop-shadow(0 0 22px rgba(255,255,255,0.16)); }
+
+  /* ---------- chain diagram (section II) ---------- */
+  .chain{
+    display:flex; align-items:center; justify-content:space-between;
+    margin:44px 0 40px; gap:4px; flex-wrap:wrap;
+  }
+  .chain-node{
+    display:flex; flex-direction:column; align-items:center; gap:10px;
+    font-family:'JetBrains Mono', monospace; font-size:10.5px; letter-spacing:0.14em;
+    color:var(--text-dim); text-transform:uppercase; flex:1; min-width:70px;
+    opacity:0; transform:translateY(14px);
+    transition:opacity 0.8s ease, transform 0.8s ease, color 0.8s ease;
+    transition-delay:var(--d,0s);
+  }
+  .is-visible .chain-node{ opacity:1; transform:translateY(0); }
+  .chain-node .dot{
+    width:10px; height:10px; border-radius:50%;
+    background:#fff; box-shadow:0 0 0px rgba(255,255,255,0);
+    transition:box-shadow 1s ease 0.4s;
+  }
+  .is-visible .chain-node .dot{ box-shadow:0 0 14px 2px rgba(255,255,255,0.55); }
+  .chain-node.action .dot{
+    background:transparent; border:1px solid #fff; box-shadow:none !important;
+  }
+  .chain-node.action{ color:#fff; }
+  .chain-line{
+    flex:1; height:1px; background:var(--line-bright); min-width:16px;
+    position:relative; top:-19px; margin:0 -2px;
+  }
+
+  /* ---------- headlight beam (section VI) ---------- */
+  .beam-wrap{
+    position:relative; height:150px; margin:40px 0 44px;
+    display:flex; align-items:center; justify-content:center;
+    overflow:hidden;
+  }
+  .beam{
+    position:absolute; width:16px; height:16px; border-radius:50%;
+    background:#fff; opacity:0;
+    transition:opacity 1.2s ease, width 1.6s cubic-bezier(.16,.8,.24,1), height 1.6s cubic-bezier(.16,.8,.24,1);
+    box-shadow:0 0 30px 6px rgba(255,255,255,0.5);
+  }
+  .is-visible .beam{
+    opacity:1; width:340px; height:340px;
+    background:radial-gradient(circle, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0.05) 45%, transparent 70%);
+    box-shadow:none;
+  }
+  .beam-caption{
+    position:relative; z-index:1;
+    font-family:'JetBrains Mono', monospace; font-size:10px; letter-spacing:0.24em;
+    color:var(--text-faint); text-transform:uppercase; text-align:center;
+  }
+
+  /* ---------- closing ---------- */
+  .closing{
+    min-height:100svh;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    text-align:center; padding:60px 32px;
+    background:radial-gradient(ellipse 60% 50% at 50% 50%, rgba(255,255,255,0.08), transparent 70%);
+    border-top:1px solid var(--line);
+  }
+  .closing-line{
+    font-family:'Fraunces', serif; font-style:italic; font-weight:400;
+    font-size:clamp(1.7rem, 5vw, 3.1rem);
+    color:#fff; max-width:18ch; line-height:1.22;
+    text-shadow:0 0 0px rgba(255,255,255,0);
+    transition:opacity 1.4s ease, transform 1.4s ease, text-shadow 2s ease;
+  }
+  .is-visible .closing-line{ text-shadow:0 0 50px rgba(255,255,255,0.3); }
+  .closing-sub{
+    margin-top:26px; color:var(--text-dim);
+    font-size:0.98rem; max-width:34ch; line-height:1.7;
+  }
+  .closing-mark{
+    margin-top:60px; font-family:'JetBrains Mono', monospace; font-size:10px;
+    letter-spacing:0.3em; color:var(--text-faint); text-transform:uppercase;
+  }
+
+  @media (max-width:640px){
+    .chapter{ padding:96px 24px 80px; }
+    .num-watermark{ top:36px; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    html{ scroll-behavior:auto; }
+    .reveal, .chain-node, .beam, .closing-line, .num-watermark, h2.reveal{
+      transition:opacity 0.4s ease !important; transform:none !important; filter:none !important;
+    }
+    .scroll-cue .stem{ animation:none; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="grain"></div>
+
+  <div class="rail">
+    <div class="rail-track"></div>
+    <div class="rail-fill" id="railFill"></div>
+    <div class="rail-dot" id="railDot"></div>
+  </div>
+
+  <div class="progress-top"><div class="progress-top-fill" id="progressTopFill"></div></div>
+
+  <!-- HERO -->
+  <header class="hero">
+    <p class="eyebrow">A MANIFESTO FOR —</p>
+    <h1>Creator Dreams</h1>
+    <p class="hero-line">You have to be before you have.</p>
+    <div class="scroll-cue"><span>SCROLL</span><span class="stem"></span></div>
+  </header>
+
+  <main>
+
+    <!-- I -->
+    <section class="chapter" data-chapter>
+      <div class="num-watermark">I</div>
+      <div class="chapter-inner">
+        <p class="eyebrow reveal">I — Why This Exists</p>
+        <h2 class="reveal">Why this exists</h2>
+        <div class="body">
+          <p class="reveal" style="--d:0.05s">Every creator who ever made it started exactly where you are right now — with nothing. No audience. No proof. No evidence that any of it matters. And yet, at some point, something in them shifted from "I want to be a creator" to "I am a creator." That shift never happened because the numbers arrived first. It happened before the numbers arrived. The numbers were just the world catching up to something the person had already decided about themselves.</p>
+          <p class="reveal" style="--d:0.1s">That's the part nobody talks about. We treat growth like it's purely external — post enough, get lucky enough, and eventually the algorithm notices you. But everyone who's actually built something knows the real order of operations is reversed. You have to become the person who makes things worth noticing before anything notices you. You have to sit in the seat before you drive the car.</p>
+          <p class="reveal" style="--d:0.15s">This app exists because that becoming has no home. There's no place to practice being seen before you're seen. No rehearsal space for the feeling of mattering. So people wait — waiting to feel like a creator until the proof shows up, and the proof takes its sweet time, and most people quit in the gap between the two.</p>
+          <p class="reveal pull" style="--d:0.2s">We built the gap-closer.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- II -->
+    <section class="chapter" data-chapter>
+      <div class="num-watermark">II</div>
+      <div class="chapter-inner">
+        <p class="eyebrow reveal">II — The Core Belief</p>
+        <h2 class="reveal">You have to be before you have</h2>
+        <div class="body">
+          <p class="reveal" style="--d:0.05s">This isn't a slogan, it's the entire mechanism the app runs on. If you want to become a working, thriving, seen creator, the fastest way there is not to wait for validation — it's to generate the internal state that validation would normally produce, and let that state pull the real behavior out of you. Confidence isn't a reward for good work. It's frequently the precondition for it.</p>
+
+          <div class="chain" aria-label="Feeling leads to Thoughts, leads to Belief, leads to Action">
+            <div class="chain-node" style="--d:0.05s"><span class="dot"></span>Feeling</div>
+            <div class="chain-line"></div>
+            <div class="chain-node" style="--d:0.15s"><span class="dot"></span>Thoughts</div>
+            <div class="chain-line"></div>
+            <div class="chain-node" style="--d:0.25s"><span class="dot"></span>Belief</div>
+            <div class="chain-line"></div>
+            <div class="chain-node action" style="--d:0.35s"><span class="dot"></span>Action</div>
+          </div>
+
+          <p class="reveal" style="--d:0.1s">This app can generate the first three links honestly and on demand. It cannot, and will not, fake the fourth. Action is the one link only you can supply, and the entire design of the app exists to protect that boundary. We give you the feeling, the thoughts, the belief. You have to bring the action, or none of it turns into anything real.</p>
+          <p class="reveal" style="--d:0.15s">This app is a machine for producing that internal state on demand, honestly, and on your terms.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- III -->
+    <section class="chapter" data-chapter>
+      <div class="num-watermark">III</div>
+      <div class="chapter-inner">
+        <p class="eyebrow reveal">III — What This App Is Not</p>
+        <h2 class="reveal">What this app is not</h2>
+        <div class="body">
+          <p class="reveal" style="--d:0.05s">It is not a lie. It is not a way to trick yourself into thinking you have followers you don't have. You will always know exactly what's real and what isn't inside this app — that line is never blurred, never softened, never hidden behind clever copy. Every fan, every comment, every follower count inside these walls is manufactured, and you are told that plainly, upfront, before you ever open the feed.</p>
+          <p class="reveal" style="--d:0.1s">It is also not a shortcut around the work. Nothing here replaces posting real content to real platforms, and the app is built, deliberately, to keep pointing you back outward — toward the actual publishing, the actual audience, the actual craft.</p>
+          <p class="reveal pull" style="--d:0.15s">This is a rehearsal room, not a stage. You don't get to live here.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- IV -->
+    <section class="chapter" data-chapter>
+      <div class="num-watermark">IV</div>
+      <div class="chapter-inner">
+        <p class="eyebrow reveal">IV — Manifestation Mode</p>
+        <h2 class="reveal">How growth works</h2>
+        <div class="body">
+          <p class="reveal" style="--d:0.05s">When you upload a video, the app doesn't guess what will happen to it on the real internet. It's not a prediction engine and it never claims to be. What it does is read your video — the hook, the pacing, the structure, the moment where the energy peaks — and translate what it finds into a growth experience that matches the <em>quality</em> of what you made.</p>
+          <p class="reveal" style="--d:0.1s">A sharper hook lands bigger. A stronger edit climbs faster. A weaker one grows slower, and that slowness is information, not punishment — it's the app quietly telling you where the work still needs you. Over time, a pattern forms: better videos manifest bigger, richer, more energized responses.</p>
+          <p class="reveal" style="--d:0.15s">And sometimes, you don't want to be evaluated. Sometimes you already know the video isn't your best, and what you need isn't a lesson — it's fuel. On those days, you can ask directly for the feeling without the analysis, and the app will give you a generous, warm, uplifting response with no craft judgment attached.</p>
+          <p class="reveal" style="--d:0.2s">That's not cheating the system. That's using the system for what it's actually for: keeping you in the game long enough to get good.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- V -->
+    <section class="chapter" data-chapter>
+      <div class="num-watermark">V</div>
+      <div class="chapter-inner">
+        <p class="eyebrow reveal">V — AI Fans</p>
+        <h2 class="reveal">Who's cheering you on</h2>
+        <div class="body">
+          <p class="reveal" style="--d:0.05s">Before you ever open the app for real, you're asked a few questions: what does your dream audience look like? Supportive? Sharp and funny? Thoughtful and deep? From your answers, a starting cast of fans is generated — not random comment bots, but personas built around the exact kind of support you actually want.</p>
+          <p class="reveal" style="--d:0.1s">They watch what you make. Not in a superficial, generic-comment way — they pick up on the specific moment the joke lands, the cut that surprised them, the line that hit different. They message you. They ask about your journey, and answering them, even knowing they're generated, is quietly one of the most useful things in the app — because it makes you say your own story out loud before you ever have to say it to someone real.</p>
+          <p class="reveal" style="--d:0.15s">You can keep them as generated. You can tweak them. You can build your own from nothing — name, face, voice, personality. They belong to you. They go nowhere. They are, at every moment, clearly and honestly not real people, and you are never asked to forget that.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- VI -->
+    <section class="chapter" data-chapter>
+      <div class="num-watermark">VI</div>
+      <div class="chapter-inner">
+        <p class="eyebrow reveal">VI — Showroom Mode</p>
+        <h2 class="reveal">Test-driving the life you want</h2>
+        <div class="body">
+          <p class="reveal" style="--d:0.05s">Sometimes the vision isn't "grow at a rate that matches my work." Sometimes it's bigger than that — you don't want to imagine ten thousand followers, you want to feel what a hundred million actually feels like, even for a moment, so your body knows what it's reaching for. That's not delusion. That's the same reason you sit in a car before you can afford it.</p>
+
+          <div class="beam-wrap">
+            <div class="beam"></div>
+            <p class="beam-caption">full profile · full feed · full feeling — then it resets</p>
+          </div>
+
+          <p class="reveal" style="--d:0.05s">So Showroom Mode exists: you tell the app the number you want to feel, and for a short window, the app gives you exactly that. This isn't a place to move in. It's a place to visit, on purpose, so you remember what you're building toward before you go back out and build it.</p>
+          <p class="reveal" style="--d:0.1s">The showroom only stays open if you're actually driving. The app connects to your real Instagram and checks: are you actually posting? If you go quiet, the vision resets, and the app tells you plainly, no sugarcoating: <em>you stopped, so this stopped.</em></p>
+          <p class="reveal pull" style="--d:0.15s">Showroom Mode doesn't reward wanting it. It rewards showing up for it.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- VII -->
+    <section class="chapter" data-chapter>
+      <div class="num-watermark">VII</div>
+      <div class="chapter-inner">
+        <p class="eyebrow reveal">VII — The Mentor</p>
+        <h2 class="reveal">The one voice that doesn't flatter you</h2>
+        <div class="body">
+          <p class="reveal" style="--d:0.05s">Everything else in this app is designed to make you feel good. The Mentor is designed to make you better, and those are not the same job.</p>
+          <p class="reveal" style="--d:0.1s">The Mentor watches your work the way a real craft-focused editor would — hook strength, pacing, structure, the one thing that would make the next version sharper — and tells you plainly. It recommends a book, a reference, a structure, something concrete tied to what you're actually trying to build, not generic advice.</p>
+          <p class="reveal" style="--d:0.15s">It is the counterweight to everything else in the app: the one place where the feeling stops and the truth starts, on purpose — because a manifestation tool that never tells you the truth eventually stops working.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIII -->
+    <section class="chapter" data-chapter>
+      <div class="num-watermark">VIII</div>
+      <div class="chapter-inner">
+        <p class="eyebrow reveal">VIII — The Accountability Board</p>
+        <h2 class="reveal">Someone who's actually watching</h2>
+        <div class="body">
+          <p class="reveal" style="--d:0.05s">Not a checklist. Not a to-do app with a face drawn on it. The Board is a presence you talk to like a person — you tell it what you're working on, and it remembers. It checks back in. It asks how the edit went, whether you tried the fix the Mentor gave you, what's next.</p>
+          <p class="reveal" style="--d:0.1s">It shows up with warmth, not pressure, because guilt has never once made anyone finish a video, but someone who seems to actually care whether you did sometimes does.</p>
+          <p class="reveal pull" style="--d:0.15s">It is the app's built-in reminder that none of this was ever supposed to be the destination.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- IX -->
+    <section class="chapter" data-chapter>
+      <div class="num-watermark">IX</div>
+      <div class="chapter-inner">
+        <p class="eyebrow reveal">IX — The Guardrail</p>
+        <h2 class="reveal">Why this doesn't become a trap</h2>
+        <div class="body">
+          <p class="reveal" style="--d:0.05s">A tool built to make you feel good carries an obvious risk: it can start to feel better than the real thing, and people can get stuck inside it. We take that seriously, not as an afterthought, but as a design constraint from day one.</p>
+          <p class="reveal" style="--d:0.1s">The honesty is structural, not just a checkbox at signup. The growth inside the app is generous, not infinite — it's built to feel earned, not to escalate without limit. And the Accountability Board is built to notice when someone is spending more time being cheered on in here than actually publishing out there, and to say so, warmly, without shame.</p>
+          <p class="reveal pull" style="--d:0.15s">The whole system is built to close a gap, not become one.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- X -->
+    <section class="chapter" data-chapter>
+      <div class="num-watermark">X</div>
+      <div class="chapter-inner">
+        <p class="eyebrow reveal">X — What Success Looks Like</p>
+        <h2 class="reveal">What success looks like</h2>
+        <div class="body">
+          <p class="reveal" style="--d:0.05s">Success is not someone living permanently inside this app, comfortable in a feed that only they will ever see. Success is someone who used this app for exactly as long as they needed the feeling to become real — who rehearsed being a creator here until they didn't need to rehearse anymore, because they'd become one out there, on the actual internet, in front of actual people, with actual work good enough to earn what they'd already practiced feeling.</p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="closing" data-chapter>
+    <p class="closing-line reveal">You have to be before you have.</p>
+    <p class="closing-sub reveal" style="--d:0.15s">This is where you practice being. What you do with it after that is entirely, completely, yours.</p>
+    <p class="closing-mark reveal" style="--d:0.3s">— END OF MANIFESTO —</p>
+  </footer>
+
+<script>
+  // scroll-triggered reveals
+  const chapters = document.querySelectorAll('[data-chapter]');
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) entry.target.classList.add('is-visible');
+    });
+  }, { threshold: 0.22, rootMargin: '0px 0px -8% 0px' });
+  chapters.forEach(c => io.observe(c));
+
+  // progress rail / top bar
+  const railFill = document.getElementById('railFill');
+  const railDot = document.getElementById('railDot');
+  const topFill = document.getElementById('progressTopFill');
+
+  function onScroll(){
+    const doc = document.documentElement;
+    const scrollTop = doc.scrollTop || document.body.scrollTop;
+    const max = doc.scrollHeight - doc.clientHeight;
+    const progress = max > 0 ? Math.min(Math.max(scrollTop / max, 0), 1) : 0;
+
+    if (railFill && railDot){
+      const pad = 60;
+      const travel = Math.max(window.innerHeight - pad * 2, 0);
+      railFill.style.height = (progress * 100) + '%';
+      railDot.style.top = (pad + progress * travel) + 'px';
+      const glow = 2 + progress * 12;
+      const spread = 1 + progress * 3;
+      railDot.style.boxShadow = `0 0 ${glow}px ${spread}px rgba(255,255,255,${0.25 + progress * 0.55})`;
+    }
+    if (topFill) topFill.style.width = (progress * 100) + '%';
+  }
+
+  let ticking = false;
+  window.addEventListener('scroll', () => {
+    if (!ticking){
+      window.requestAnimationFrame(() => { onScroll(); ticking = false; });
+      ticking = true;
+    }
+  });
+  window.addEventListener('resize', onScroll);
+  onScroll();
+</script>
+
+</body>
+</html>
